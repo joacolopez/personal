@@ -1,0 +1,48 @@
+#!/bin/bash
+# Generado desde /etc/crediconn/templates/ipsec_up
+
+#$1 => nombre de la conn
+
+#set -x
+#exec >> /tmp/ipsec_up.out 2>&1
+
+export PATH=$PATH:/usr/local/bin:/usr/local/sbin:
+
+ejecutar_up(){
+
+	#LOCK=/tmp/$1.ipsec-lock 
+	#test -f $LOCK && exit 0
+	#touch $LOCK
+
+	ipsec down $1
+
+        if echo $1 | grep -- '-fase2$' > /dev/null 2>&1; then
+                credilog.py "Levantando tunel $1-voip"
+                ipsec down ${1}-voip
+                ipsec up ${1}-voip
+        fi
+
+        credilog.py "Levantando tunel $1"
+	ipsec status | grep $1 | grep -v ${1}-voip > /tmp/ips.$$
+	grep -v ${1}-voip /tmp/ips.$$> /tmp/ips.$$
+	grep -q ${1} /tmp/ips.$$ || ipsec up $1
+	rm /tmp/ips.$$ 2>/dev/null
+
+	ip xfrm policy update dir out src 10.12.160.0/24 \
+		dst 10.12.160.0/24 action allow 
+	ip xfrm policy update dir in src 10.12.160.0/24 \
+		dst 10.12.160.0/24 action allow 
+	ip xfrm policy update dir out src 10.22.160.0/24 \
+		dst 10.12.160.0/24 action allow 
+	ip xfrm policy update dir in src 10.12.160.0/24 \
+		dst 10.22.160.0/24 action allow 
+
+	#rm -f $LOCK
+}
+
+#Este script se manda a background para no bloquear por mucho tiempo al crediconn,
+#asi puede seguir ejecutando otras acciones. El $LOCK es para evitar que un mismo
+#enlace se levante dos veces.
+#DESACTIVADO POR AHORA. (se saco el & de la llamada a la funcion)
+
+ejecutar_up $1

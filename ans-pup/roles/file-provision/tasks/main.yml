@@ -1,0 +1,28 @@
+- name: Asegurar que el directorio existe
+  file: 
+    path: '{{ path }}'
+    state: directory 
+    mode: '{{ dirmode | default(omit) }}'
+  when: 'path is defined'
+
+- name: Asegurar que directorios existen
+  file: 
+    path: '{{ item.path }}'
+    state: directory 
+    mode: '{{ dirmode | default(omit) }}'
+  when: 'item.path is defined'
+  loop: '{{ files }}'
+
+- name: Provisionar archivos
+  copy:
+    src: '{{ FILEREPO }}/{{ nodoTipo | default("produccion") }}{{ item.path | default(path) }}/{{ item.name | default(item)}}'
+    dest: '{{ item.path | default(path) }}/{{ item.name | default(item) }}'
+    owner: '{{ item.owner | default(owner) }}'
+    group: '{{ item.group | default(group) }}'
+    mode: '{{ item.mode | default(mode) }}'
+    local_follow: True
+  notify: 
+  - Aplicar conffilial
+  - post file provision
+  loop: '{{ files }}'
+  when: item.when | default(True) | bool

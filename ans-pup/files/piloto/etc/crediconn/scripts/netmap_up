@@ -1,0 +1,26 @@
+#!/bin/bash
+# Script que se ejecuta cuando se pasa el tráfico por vera.
+# version 1.1.1  - Mazo 2017
+#       Agrega compatibilidad con Squid v3 -> NodoVPN v5.1
+#
+# version 1.1  - 7 Mayo 2015
+#       agrega capacidad para el uso de QoS adaptativo en Squid.
+#
+# Proyectos Especiales.
+# Gerencia de tecnologia.
+# Banco Credicoop Coop. Ltdo.
+
+iptables -t nat -A POSTROUTING -j VERA_NETMAP
+
+# Verifico si es Squid v3
+squid3 -v 2> /dev/null 1>/dev/null
+if [ $? -eq 0 ] ; then
+        HomeSquid="/etc/squid3"
+else
+        HomeSquid="/etc/squid"
+fi
+if [ -h $HomeSquid/squid.conf ] ; then
+        # Si es un link simbolico, entiendo que tengo que cambiar QoS.
+	/etc/crediconn/scripts/squid_qos.sh --qos
+fi
+

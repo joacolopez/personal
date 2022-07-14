@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if echo $1 | grep -- '-fase2$' > /dev/null 2>&1; then
+	credilog.py "Bajando tunel $1-voip"
+	ipsec down ${1}-voip
+fi
+
+ipsec down $1
+

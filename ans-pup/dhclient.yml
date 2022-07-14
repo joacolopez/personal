@@ -1,0 +1,26 @@
+- hosts: "{{host_override | default('all')}}" 
+  tasks:
+    - name: Provisionar configuraciones
+      include_role:
+        name: file-provision
+      vars:
+        applyConffilial: true
+        owner: root
+        group: root
+        mode: '644'
+        files: 
+        - path: /etc/dhcp
+          name: dhclient.conf
+        - path: /usr/local/bin
+          name: credi-iface-up.sh
+          group: staff
+          mode: '755'
+        - path: /etc/crediconn/templates
+          name: network-interfaces-dhcp
+          group: staff
+        
+    
+    - name: Instalar paquetes DHCP
+      apt:
+        pkg:
+        - isc-dhcp-client=4.3.1-6+deb8u3

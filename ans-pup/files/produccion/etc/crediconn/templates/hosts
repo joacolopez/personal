@@ -1,0 +1,5 @@
+PATH: /etc/hosts
+
+127.0.0.1 localhost.localdomain localhost
+%(lan_ip_drago1)s nodovpn%(filial)s.bancocredicoop.coop nodovpn%(filial)s
+10.7.10.73	puppetmaster.bancocredicoop.coop	puppetmaster

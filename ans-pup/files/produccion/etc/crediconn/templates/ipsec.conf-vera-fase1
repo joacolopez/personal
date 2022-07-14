@@ -1,0 +1,9 @@
+PATH: /etc/ipsec.d/%(section)s-vera-fase1.conf
+
+conn %(section)s-vera-fase1
+	mediation=yes
+	right=%(concentrador_vera)s
+	rightid=@concentrador-vera.bancocredicoop.coop
+	left=%(ip)s
+	type=transport
+

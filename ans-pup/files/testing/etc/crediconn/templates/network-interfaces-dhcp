@@ -1,0 +1,7 @@
+PATH: /etc/network/interfaces
+
+# %(section)s
+auto %(interface)s
+iface %(interface)s inet dhcp
+	post-up /usr/local/bin/credi-iface-up.sh %(section)s
+	#post-up ethtool -s %(interface)s speed 10 duplex half

@@ -1,0 +1,9 @@
+PATH: /etc/ipsec.d/%(section)s-drago-fase1.conf
+
+conn %(section)s-drago-fase1
+	mediation=yes
+	right=%(concentrador_drago)s
+	rightid=@concentrador-drago.bancocredicoop.coop
+	left=%(ip)s
+	type=transport
+

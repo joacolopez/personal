@@ -1,0 +1,21 @@
+- hosts: "{{host_override | default('all')}}" 
+  tasks:
+    - name: Asegurar que bind9 este corriendo
+      service:
+        name: bind9
+        state: started
+        enabled: true
+
+    - name: Provisionar configuraciones
+      include_role:
+        name: file-provision
+      vars:
+        owner: 'root'
+        group: 'root'
+        mode: '640'
+        path: '/etc/crediconn/templates'
+        applyConffilial: true
+        files: 
+        - db.drago
+        - db.vera
+        - named.conf

@@ -1,0 +1,12 @@
+#!/bin/bash
+#
+# Script que se ejecuta cada vez que se configura una filial
+#
+# Script para poner la e1000 como eth0
+# /usr/local/bin/fix-eth0.sh
+# Script para borrar y volver a crear el usuario SNMP
+/usr/local/bin/fix-snmpd.sh
+# Script que configura al puppet para que use los certificdos de la VPN.
+/usr/local/bin/gen-puppet-ssl-links.sh $1
+
+exit 0

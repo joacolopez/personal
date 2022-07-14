@@ -1,0 +1,11 @@
+#!/bin/bash
+# Versión 31-7-2018 - NodosVPN v5.1
+PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+# tiempo en segundos.
+ESPERA=20
+#-------------------------------------
+
+/usr/local/bin/credilog.py "NIC - Levantando interfaz $1"
+ifup $1
+/usr/local/bin/credilog.py "NIC - Esperando $ESPERA segundos por $1..."
+sleep $ESPERA

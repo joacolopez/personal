@@ -1,0 +1,26 @@
+PATH: /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+
+auto peth0
+iface peth0 inet manual
+        up ip link set name peth0 dev eth0
+       
+auto %(interface)s
+iface %(interface)s inet static
+        bridge_ports peth0
+        address %(lan_ip_drago1)s
+        netmask %(mask)s
+        gateway %(lan_ip_drago1)s
+        up ip a a %(lan_ip_drago2)s/24 dev %(interface)s
+        up ip a a %(lan_ip_vera1)s/24 dev %(interface)s
+        up ip a a %(lan_ip_vera2)s/24 dev %(interface)s
+        up iptables-restore < /etc/network/iptables.rules
+        up /usr/local/bin/tc-htb.sh start
+        post-up ip r r 10.0.0.0/8 via %(lan_ip_drago1)s src %(lan_ip_drago1)s
+
+# esto lo agrega el puppet
+
+
+# ESTO ES UNA PRUEBA PARA EL SNA VIRTUALIZADO EN NODOS !!!

@@ -1,0 +1,21 @@
+- hosts: "{{host_override | default('all')}}" 
+  tasks:
+    - name: Provisionar configuraciones
+      include_role:
+        name: file-provision
+      vars:
+        applyConffilial: true
+        owner: root
+        group: root
+        mode: '640'
+        files: 
+        - path: /etc/crediconn/templates
+          name: network-interfaces-pppoe
+        - path: /etc/ppp
+          name: options
+
+    - name: Instalar paquetes PPPOE
+      apt:
+        pkg:
+        - pppoeconf=1.21
+        - ppp=2.4.6-3.1

@@ -1,0 +1,46 @@
+- hosts: localhost
+  tasks:
+  - name: Verificar que se hay aprovisto un host_override
+    fail:
+      msg: "Recuerde definir el grupo sobre el cual desea ejecutar. Por ejemplo: ansible-playbook nodosPiloto.yml --extra-vars 'host_override=workstations'"
+    when: host_override is not defined
+
+  - name: Advertencia de ejecucion sobre grupo no esperado
+    fail: 
+      msg: "Esta intentando ejecutar sobre un grupo distinto a: produccion. Si es lo que desea realizar, desabilite o edite esta tarea del playbook"
+    when: host_override != "produccion"
+
+- import_playbook: squid3.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: purga_squid.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: wanproxy.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: adminusers.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: snmpd.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: pppoe.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+- import_playbook: dnsclient.yml
+  when: ansible_facts.facter_lsbmajdistrelease != "8"
+
+- import_playbook: bind9dns.yml
+  when: ansible_facts.facter_credicoop_version != "5.1"
+- import_playbook: dhclient.yml
+  when: ansible_facts.facter_credicoop_version != "5.1"
+- import_playbook: iptables.yml
+  when: ansible_facts.facter_credicoop_version != "5.1"
+- import_playbook: dhcpd.yml
+  when: ansible_facts.facter_credicoop_version != "5.1"
+- import_playbook: crediconn.yml
+  when: ansible_facts.facter_credicoop_version != "5.1"       
+
+- name: 'puppetclient: Nodo en PRODUCCION  sobre proxmox en v5.2.'
+  import_playbook: puppetclient.yml
+  when: ansible_facts.facter_credicoop_version != "5.2"
+- name: 'iptables: Nodo en PRODUCCION  sobre proxmox en v5.2.'
+  import_playbook: iptables.yml
+  when: ansible_facts.facter_credicoop_version != "5.2"
+
+- import_playbook: todosNodos.yml

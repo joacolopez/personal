@@ -1,0 +1,80 @@
+# Extracto de iptables productivo de 16-12-2011 15:05:15
+#
+# Version 1.2 ->  03-Enero-2019
+#		Normalizan direcciones de concentradores.
+#
+# Proyectos Especiales.
+# Gerencia de tecnología.
+# Banco Credicoop Coop. Ltdo.
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT ACCEPT [0:0]
+:CONCENTRADORES - [0:0]
+# Reglas necesarias para WanProxy (estadisticas).
+:Wanproxy-Inside - [0:0]
+:Wanproxy-filiales - [0:0]
+-A Wanproxy-Inside -j RETURN
+-A Wanproxy-filiales -j RETURN
+-A OUTPUT -d 10.20.0.0/14 -p tcp -m multiport --sports 3128,80 -j Wanproxy-filiales
+-A OUTPUT -d 10.10.0.0/15 -p tcp -m multiport --sports 3128,80 -j Wanproxy-filiales
+-A OUTPUT -d 10.12.0.0/15 -p tcp -m multiport --sports 3128,80 -j Wanproxy-filiales
+-A INPUT -s 10.7.10.64/26 -p tcp -m multiport --sports 3130,3129,3128,3301 -j Wanproxy-Inside 
+# Fin Reglas para WanProxy (estadisticas).
+-A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT 
+-A INPUT -p esp -j CONCENTRADORES 
+-A INPUT -p ipencap -m policy --dir in --pol ipsec -j CONCENTRADORES 
+-A INPUT -p udp -m udp --dport 500  -j CONCENTRADORES 
+-A INPUT -p udp -m udp --dport 4500  -j CONCENTRADORES 
+-A INPUT -i lo -j ACCEPT 
+-A INPUT -s 10.0.0.0/255.0.0.0 -m policy --dir in --pol ipsec -j ACCEPT 
+-A INPUT -i eth0 -p tcp -s 10.0.0.1/255.0.0.255 --dport 22  -j ACCEPT
+-A INPUT -i eth0 -p tcp -s 10.0.0.2/255.0.0.255 --dport 22  -j ACCEPT 
+-A INPUT -i eth0 -p tcp -s 10.0.0.30/255.0.0.255 --dport 22  -j ACCEPT 
+-A INPUT -i eth0 -p icmp -s 10.0.0.0/8 --icmp-type 8 -j ACCEPT 
+-A INPUT -i eth0 -p udp -s 10.0.0.0/8 --dport 123 -j ACCEPT 
+-A INPUT -i eth0 -p udp -m multiport --dports 68,67,53 -j ACCEPT 
+-A INPUT -i eth0 -p tcp --dport 3128 -s 10.0.0.0/8  -j ACCEPT 
+-A INPUT -p tcp -m tcp --dport 22  -j CONCENTRADORES 
+-A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT 
+-A FORWARD -m policy --dir in --pol ipsec -j ACCEPT
+-A FORWARD -m policy --dir out --pol ipsec -j ACCEPT
+# El tráfico por vera, necesita permisos a la dummy.
+-A FORWARD -i eth0 -o dummy0 -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT
+-A FORWARD -i eth0 -o eth0 -s 10.0.0.0/8 -d 10.0.0.0/8 -j ACCEPT
+# CONCENTRADORES DRAGO -----------------------------------------------
+# REDES MPLS.- (desde host 56 al 61)
+-A CONCENTRADORES -s 172.16.0.56/255.240.0.252 -j ACCEPT
+-A CONCENTRADORES -s 172.16.0.60/255.240.0.254 -j ACCEPT
+# Internet - 2018
+-A CONCENTRADORES -s 190.2.54.153 -j ACCEPT
+-A CONCENTRADORES -s 190.2.54.154/31 -j ACCEPT
+-A CONCENTRADORES -s 190.2.54.156 -j ACCEPT
+# CONCENTRADORES VERA ------------------------------------------------
+# REDES MPLS - 
+-A CONCENTRADORES -s 172.16.0.124/255.240.0.254 -j ACCEPT
+# Internet - 2018
+-A CONCENTRADORES -s 190.111.205.10/31 -j ACCEPT
+-A CONCENTRADORES -s 190.111.205.14 -j ACCEPT
+COMMIT
+*nat
+:PREROUTING ACCEPT [0:0]
+:POSTROUTING ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+:BALANCEO - [0:0]
+:VERA_NETMAP - [0:0]
+-A POSTROUTING -s 10.10.0.0/15 -d 10.7.10.97/32 -j NETMAP --to 10.20.0.0/15
+-A POSTROUTING -s 10.12.0.0/15 -d 10.7.10.97/32 -j NETMAP --to 10.22.0.0/15
+-A POSTROUTING -j BALANCEO 
+-A PREROUTING -s 10.0.0.0/8 -d 10.20.0.0/16 -m addrtype ! --dst-type LOCAL -j NETMAP --to 10.10.0.0/16
+-A PREROUTING -s 10.0.0.0/8 -d 10.21.0.0/16 -m addrtype ! --dst-type LOCAL -j NETMAP --to 10.11.0.0/16
+-A PREROUTING -s 10.0.0.0/8 -d 10.22.0.0/16 -m addrtype ! --dst-type LOCAL -j NETMAP --to 10.12.0.0/16
+-A PREROUTING -s 10.0.0.0/8 -d 10.23.0.0/16 -m addrtype ! --dst-type LOCAL -j NETMAP --to 10.13.0.0/16
+###-A PREROUTING -d 10.1.1.40 -p tcp --dport 80 -j REDIRECT --to 3301
+-A VERA_NETMAP -s 10.10.0.0/16 ! -d 10.7.10.65/32 -j NETMAP --to 10.20.0.0/16
+-A VERA_NETMAP -s 10.11.0.0/16 ! -d 10.7.10.65/32 -j NETMAP --to 10.21.0.0/16
+-A VERA_NETMAP -s 10.12.0.0/16 ! -d 10.7.10.65/32 -j NETMAP --to 10.22.0.0/16
+-A VERA_NETMAP -s 10.13.0.0/16 ! -d 10.7.10.65/32 -j NETMAP --to 10.23.0.0/16
+COMMIT
+# Completed on Fri Dec 16 15:05:15 2011
+

@@ -1,0 +1,72 @@
+- name: Debug
+  debug:
+    msg: |
+      Grupo: {{permission.name}} 
+      ID grupo: {{permission.groupid}}
+      Comentario de usuarios: {{permission.usercomment}} 
+      Comentario de archivo SUDO: {{permission.sudocomment}}
+      Version de archivo SUDO: {{permission.sudoversion}}
+      Comandos de archivo SUDO (alias): {{permission.sudocommandalias}}
+      Permisos de SUDO: {{permission.sudopermission}}
+
+- name: Asegurar que el directorio existe
+  file: 
+    path: '/etc/sudoers.d'
+    state: directory 
+
+- name: Sudofile presente para usuario 
+  template:
+    src: templates/sudofile.j2
+    dest: "/etc/sudoers.d/{{permission.name}}"
+    owner: root
+    group: root
+    mode: '0440'
+  notify: Restart sudo service
+
+- name: Grupo presente
+  group:
+    name: "{{permission.name}}"
+    gid: "{{permission.groupid}}"
+    state: present
+
+- name: Usuario presente
+  user:
+    name: "{{user.name}}"
+    comment: "{{permission.usercomment}}"
+    shell: /bin/bash
+    groups: 
+    - "{{permission.name}}"
+    create_home: yes
+    uid: "{{user.uid}}"
+  loop: "{{permission.userlist}}"
+  loop_control:
+    loop_var: user  
+
+- name: Grupo presente para usuario
+  group:
+    name: "{{user.name}}"
+    # Se tuvo que manipular el GID por conflictos en instalacion de imagen ISO.
+    gid: "3{{user.uid}}"
+    state: present
+  loop: "{{permission.userlist}}"
+  loop_control:
+    loop_var: user  
+
+- name: Permisos (700) a /home/*
+  file:
+    path: /home/*
+    state: directory
+    mode: '0700'
+    recurse: yes
+
+- name: Permisos (700) a /home/usuario
+  file:
+    path: '/home/{{user.name}}'
+    state: directory
+    mode: '0700'
+    owner: '{{user.name}}'
+    group: '{{user.name}}'
+    recurse: yes
+  loop: "{{permission.userlist}}"
+  loop_control:
+    loop_var: user  

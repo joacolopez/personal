@@ -1,0 +1,85 @@
+PATH: /etc/network/interfaces
+# Para NodosVPN virtualizados en ProxMox
+# Con soporte de VLANs.
+# Version 1 - Enero 2020.
+#	-> VLAN para ATMs.
+# GerTec.
+# Banco Credicoop Coop. Ltdo.
+
+auto lo
+iface lo inet loopback
+
+#VLAN 1 - NATIVA (segmento de WS de filial)
+auto %(interface)s
+iface %(interface)s inet static
+	address %(lan_ip_drago1)s
+	netmask %(mask)s
+	#gateway %(lan_ip_drago1)s
+	up ip a a %(lan_ip_drago2)s/24 dev %(interface)s
+	up ip a a %(lan_ip_vera1)s/24 dev %(interface)s
+	up ip a a %(lan_ip_vera2)s/24 dev %(interface)s
+	up iptables-restore < /etc/network/iptables.filter.rules
+	up iptables-restore < /etc/network/iptables.mangle.rules
+	up /usr/local/bin/tc-htb_NodoVPNv51.sh start
+	up arptables -N vlan1 
+	up arptables -A vlan1 -d $IF_ADDRESS -j ACCEPT
+	up arptables -A vlan1 -d %(net_prefix_drago)s.253 -j ACCEPT
+	up arptables -A vlan1 -d %(net_prefix_drago)s.238 -j ACCEPT
+	up arptables -A vlan1 -d %(net_prefix_drago)s.0/24 -j DROP
+	# Vera no debiar ser necesario.
+	#up arptables -A vlan1 -d %(net_prefix_vera)s.254 -j ACCEPT
+	#up arptables -A vlan1 -d %(net_prefix_vera)s.253 -j ACCEPT
+	#up arptables -A vlan1 -d %(net_prefix_vera)s.238 -j ACCEPT
+	#up arptables -A vlan1 -d %(net_prefix_vera)s.0/24 -j DROP
+	up arptables -A vlan1 -d 10.0.0.0/8 -j ACCEPT
+	up arptables -A vlan1 -j DROP
+	up arptables -I INPUT -i $IFACE -j vlan1
+	up /sbin/ip link set dev dummy0 up
+	post-up /sbin/ip r a 10.0.0.0/8 dev dummy0 src %(lan_ip_drago1)s
+	# Permisos de SSH desde el ProxMox al NodoVPN.
+	up iptables -A INPUT -p tcp --dport 22 -s %(net_prefix_drago)s.1 -i $IFACE -j ACCEPT
+	down iptables -D INPUT -p tcp --dport 22 -s %(net_prefix_drago)s.1 -i $IFACE -j ACCEPT
+	down arptables -D INPUT -i $IFACE -j $IFACE
+	down arptables -A vlan1 -F
+	down arptables -X vlan1 
+
+# DMZ para ATMs.---------------------------------
+auto vlan101
+iface vlan101 inet static
+	vlan-raw-device %(interface)s
+	address %(net_prefix_drago)s.238
+	broadcast %(net_prefix_drago)s.239
+	network %(net_prefix_drago)s.232
+	netmask 255.255.255.248
+	# Permito solo ping para pruebas.
+	up iptables -I INPUT -i $IFACE -p icmp -m icmp --icmp-type 8 -m limit --limit 3/sec --limit-burst 10 -j ACCEPT 
+	up arptables -N $IFACE 
+	up arptables -A $IFACE -d $IF_ADDRESS -j ACCEPT
+	up arptables -A $IFACE -d %(net_prefix_drago)s.254 -j ACCEPT
+	up arptables -A $IFACE -d %(net_prefix_drago)s.253 -j ACCEPT
+	#up arptables -A $IFACE -d %(net_prefix_drago)s.232/29 -j DROP
+	up arptables -A $IFACE -d %(net_prefix_drago)s.0/24 -j DROP
+	#up arptables -A $IFACE -d %(net_prefix_vera)s.238 -j ACCEPT
+	#up arptables -A $IFACE -d %(net_prefix_vera)s.232/29 -j DROP
+	up arptables -A $IFACE -d 10.0.0.0/8 -j ACCEPT
+	up arptables -A $IFACE -j DROP
+	up arptables -I INPUT -i $IFACE -j $IFACE
+	down arptables -D INPUT -i $IFACE -j $IFACE
+	down iptables -D INPUT -i $IFACE -p icmp -m icmp --icmp-type 8 -m limit --limit 3/sec --limit-burst 10 -j ACCEPT 
+	down arptables -A $IFACE -F
+	down arptables -X $IFACE 
+
+# Manipulación de ARP.
+auto dummy0
+iface dummy0 inet manual
+	pre-up /sbin/modprobe dummy
+	up ifconfig $IFACE up
+	post-up /sbin/ip r a 10.0.0.0/8 dev dummy0 src %(lan_ip_drago1)s
+	post-up echo "1" > /proc/sys/net/ipv4/conf/eth0/proxy_arp
+	pre-down /sbin/ip r d 10.0.0.0/8 dev dummy0 src %(lan_ip_drago1)s
+	pre-down echo "0" > /proc/sys/net/ipv4/conf/eth0/proxy_arp
+	down ifconfig $IFACE down
+	post-down /sbin/rmmod -f dummy
+
+# WANs ------------------------------------------------------------------------
+

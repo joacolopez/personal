@@ -1,0 +1,113 @@
+- hosts: "{{host_override | default('all')}}"
+  vars:
+  - primario_bandwidth_down: 512
+  - secundario_bandwidth_down: 512
+  - intranet_bandwidth_down: 512
+  - internet_bandwidth_down: 512
+
+  tasks:
+  - name: "Estatico"
+    include_role:
+      name: qos-build
+    vars:
+      link:
+        name: 'estatico'
+        bw_procentaje_individual_intranet: 39
+        bw_procentaje_global_intranet: 50
+        bw_procentaje_individual_internet: 25
+        bw_procentaje_global_internet: 35
+        intranet_bandwidth_down: 512
+        internet_bandwidth_down: 512
+  
+  # Ejecuta la task solo si es un archivo regular
+  - name: Change the working directory to somedir/ before executing the command
+    shell: /usr/bin/test ! -h /etc/squid3/squid.conf
+    register: file_test
+
+  - name: Change the working directory to somedir/ before executing the command
+    shell: /bin/ln -sf /etc/squid3/squid_estatico.conf /etc/squid3/squid.conf
+    when: file_test is defined and file_test.rc == 0
+
+  # Templates
+  - name: "Ambos enlaces definidos"
+    include_role:
+      name: qos-build
+    vars:
+      link: '{{item}}'
+    when: secundario_provider_name is defined and primario_provider_name is defined
+    loop:
+    - name: "dos_vinculos"
+      bw_procentaje_individual_intranet: 39
+      bw_procentaje_global_intranet: 50
+      bw_procentaje_individual_internet: 60
+      bw_procentaje_global_internet: 100
+      intranet_bandwidth_down: '{{primario_bandwidth_down}}'
+      internet_bandwidth_down: '{{secundario_bandwidth_down}}'
+    - name: "primario"
+      bw_procentaje_individual_intranet: 39
+      bw_procentaje_global_intranet: 50
+      bw_procentaje_individual_internet: 25
+      bw_procentaje_global_internet: 35
+      intranet_bandwidth_down: '{{primario_bandwidth_down}}'
+      internet_bandwidth_down: '{{primario_bandwidth_down}}'
+    - name: "secundario"
+      bw_procentaje_individual_intranet: 39
+      bw_procentaje_global_intranet: 50
+      bw_procentaje_individual_internet: 25
+      bw_procentaje_global_internet: 35
+      intranet_bandwidth_down: '{{secundario_bandwidth_down}}'
+      internet_bandwidth_down: '{{secundario_bandwidth_down}}'
+
+  - name: "Solo enlace primario definido"
+    include_role:
+      name: qos-build
+    vars:
+      link:
+        name: '{{item}}'
+        bw_procentaje_individual_intranet: 39
+        bw_procentaje_global_intranet: 50
+        bw_procentaje_individual_internet: 25
+        bw_procentaje_global_internet: 35
+        intranet_bandwidth_down: '{{primario_bandwidth_down}}'
+        internet_bandwidth_down: '{{primario_bandwidth_down}}'
+    when: secundario_provider_name is not defined and primario_provider_name is defined
+    loop:
+    - dos_vinculos
+    - primario
+    - secundario
+
+  - name: "Solo enlace secundario definido"
+    include_role:
+      name: qos-build
+    vars:
+      link:
+        name: '{{item}}'
+        bw_procentaje_individual_intranet: 39
+        bw_procentaje_global_intranet: 50
+        bw_procentaje_individual_internet: 25
+        bw_procentaje_global_internet: 35
+        intranet_bandwidth_down: '{{secundario_bandwidth_down}}'
+        internet_bandwidth_down: '{{secundario_bandwidth_down}}'
+    when: secundario_provider_name is defined and primario_provider_name is not defined
+    loop:
+    - dos_vinculos
+    - primario
+    - secundario
+
+  - name: "Ningun enlace definido"
+    include_role:
+      name: qos-build
+    vars:
+      link:
+        name: '{{item}}'
+        bw_procentaje_individual_intranet: 39
+        bw_procentaje_global_intranet: 50
+        bw_procentaje_individual_internet: 25
+        bw_procentaje_global_internet: 35
+        intranet_bandwidth_down: 512
+        internet_bandwidth_down: 512
+    when: secundario_provider_name is not defined and primario_provider_name is not defined
+    loop:
+    - dos_vinculos
+    - primario
+    - secundario

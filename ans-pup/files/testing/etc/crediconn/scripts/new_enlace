@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+# Script que se ejecuta cada vez que se configura un enlace
+#
+
+ENLACE=$1
+CREDICFG="credicfg.py /etc/crediconn/currentconf/enlaces.conf"
+FILCFG="credicfg.py /etc/crediconn/currentconf/filial.conf"
+IFACE=$($CREDICFG $ENLACE interface)
+CONECTIVIDAD=$($CREDICFG $ENLACE conectividad)
+
+vnstat -u -i $IFACE
+
+# Si es un DSL llamo pppoeconf
+#echo -n "Presione ENTER para continuar"; read
+if [[ $CONECTIVIDAD == "dsl" ]]
+then
+   /usr/sbin/pppoeconf $IFACE
+   PROVIDER_NAME=$($CREDICFG $ENLACE provider_name)
+   [[ "$PROVIDER_NAME" == "" ]] || \
+	mv /etc/ppp/peers/dsl-provider /etc/ppp/peers/${PROVIDER_NAME}
+fi

@@ -1,0 +1,36 @@
+- hosts: "{{host_override | default('all')}}" 
+  tasks:
+    - name: Provisionar template
+      include_role:
+        name: file-provision
+      vars:
+        applyConffilial: true
+        owner: root
+        group: root
+        path: /etc/crediconn/templates
+        mode: '644'
+        files:
+        - dhcpd.conf
+
+
+    - name: Provisionar configuraciones
+      include_role:
+        name: file-provision
+      vars:
+        owner: root
+        group: root
+        mode: '640'
+        path: '/etc/dhcp'
+        files:
+        - dhcpd-ip-fijas.conf
+        - dhcpd-subclass-notebooks.conf
+        - dhcpd-subclass-telefonosfijos.conf
+        - dhcpd-subclass-switches.conf
+ 
+  handlers:
+  - name: Asegurar que isc-dhcp-server este corriendo
+    service:
+      name: isc-dhcp-server
+      state: started
+      enabled: true
+    listen: post conffilial apply

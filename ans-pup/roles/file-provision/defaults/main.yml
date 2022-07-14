@@ -1,0 +1,2 @@
+FILEREPO: "files"
+FILESRC: '{{ FILEREPO }}/{{ nodoTipo | default("produccion") }}'

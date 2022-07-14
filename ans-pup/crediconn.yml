@@ -1,0 +1,139 @@
+- hosts: "{{host_override | default('all')}}"
+  tasks:
+  # Crediconn scripts
+  - name: Asegurar presencia de Python 2.7
+    apt:
+      update_cache: yes
+      name: python2.7
+      state: present
+
+  - name: Provisionar scripts
+    include_role:
+      name: file-provision
+    vars:
+      applyConffilial: true
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      dirmode: '0755'
+      path: '/etc/crediconn/scripts'
+      files: 
+      - 'balanceo_down' 
+      - 'balanceo_status'
+      - 'balanceo_up'
+      - 'config_filial'
+      - 'ifdown'
+      - 'ifup'
+      - 'netmap_down'
+      - 'netmap_status'
+      - 'netmap_up'
+      - 'new_cert_req'
+      - 'new_enlace'
+      - 'post_apply_conf'
+      - 'pre_apply_conf'
+      - 'squid_qos.sh'
+      - 'wanproxy-rules.sh'
+  
+  # /usr/local/bin
+  - name: Provisionar templates
+    include_role:
+      name: file-provision
+    vars:
+      applyConffilial: true
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      dirmode: '0755'
+      path: '/usr/local/bin'
+      files: 
+      - 'conffilial.py'
+      - 'credilog.py'
+      - 'fix-snmpd.sh'
+    
+  - name: Crear symlink - conffilial
+    file:
+      src: "/usr/local/bin/conffilial.py"
+      dest: "/usr/local/bin/confenlace.py"
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      state: link
+
+  # Templates
+  - name: Provisionar templates
+    include_role:
+      name: file-provision
+    vars:
+      applyConffilial: true
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      dirmode: '0755'
+      path: '/etc/crediconn/templates'
+      files: 
+      - 'hostname'
+      - 'hosts'
+      - 'network-interfaces'
+      - 'network-interfaces.filial.nodovpn'
+      - 'network-interfaces.filial.snavirtual'
+      - { name: 'network-interfaces.filial.is_virtual', when: ansible_facts.facter_is_virtual is defined and ansible_facts.facter_is_virtual == 'true'}
+      - { name: 'ntpd.conf', when: ansible_facts.facter_is_virtual is defined and ansible_facts.facter_is_virtual == 'true'}
+
+  - name: Crear symlink - network-interfaces.filial
+    file:
+      src: '/etc/crediconn/templates/network-interfaces.filial.{% if isVirtual %}is_virtual{% else %}nodovpn{% endif %}'
+      dest: '/etc/crediconn/templates/network-interfaces.filial'
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      state: link
+
+  # Archivos regulares
+  - name: Provisionar archivos regulares
+    include_role:
+      name: file-provision
+    vars:
+      applyConffilial: true
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      dirmode: '0755'
+      path: '/etc/crediconn'
+      files: 
+      - 'crediconn.conf' 
+      - 'enlaces.conf'
+      - 'fase1-fase2-Balanceo.conf'
+      - 'fase1-fase2-SinBalanceo.conf'
+      - 'filial.conf'
+      - 'openssl.cnf'
+
+  - name: Crear symlink - fase1-fase2
+    file:
+      src: "/usr/local/lib/python2.7/dist-packages/statesdict.py"
+      dest: "/etc/crediconn/fase1-fase2.conf"
+      owner: 'root'
+      group: 'root'
+      mode: '644'
+      state: link
+
+  - name: Borrar archivos y directorios
+    file:
+      path: '{{item}}'
+      state: absent
+    loop:
+    - '/etc/crediconn/templates/Deprecado_NodoVPNv5.1/'
+    - '/etc/crediconn/templates/squid.conf.erb'
+  
+  - name: Asegurar que servicio crediconn este corriendo
+    service:
+      name: crediconn
+      state: started
+      enabled: true
+
+  handlers:
+  - name: Asegurar que servicio crediconn este corriendo
+    service:
+      name: crediconn
+      state: started
+      enabled: true
+    listen: "post conffilial apply"

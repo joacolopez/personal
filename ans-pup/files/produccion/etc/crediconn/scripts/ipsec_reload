@@ -1,0 +1,8 @@
+#!/bin/bash
+
+timeout -k 20 10 ipsec reload
+
+if [ $? -eq 124 ]; then
+	/usr/local/bin/credilog.py "ipsec reload timeout, haciendo restart"
+	ipsec restart
+fi
