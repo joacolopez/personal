@@ -1,0 +1,62 @@
+{
+    "cache_updated": false,
+    "stdout": "Reading package lists...\nBuilding dependency tree...\nReading state information...\nThe following additional packages will be installed:\n  libtirpc1 rpcbind\nSuggested packages:\n  open-iscsi watchdog\nThe following NEW packages will be installed:\n  libtirpc1 nfs-common rpcbind\n0 upgraded, 3 newly installed, 0 to remove and 386 not upgraded.\nNeed to get 323 kB of archives.\nAfter this operation, 1132 kB of additional disk space will be used.\nIgn:1 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 libtirpc1 amd64 0.2.5-1.2ubuntu0.1\nIgn:2 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 rpcbind amd64 0.2.3-0.6ubuntu0.18.04.4\nErr:3 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 nfs-common amd64 1:1.3.4-2.1ubuntu5.5\n  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\nErr:1 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 libtirpc1 amd64 0.2.5-1.2ubuntu0.1\n  Could not connect to sapt.filial439.bancocredicoop.coop:3142 (10.11.185.6). - connect (111: Connection refused)\nErr:2 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 rpcbind amd64 0.2.3-0.6ubuntu0.18.04.4\n  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\n",
+    "stderr": "E: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/libt/libtirpc/libtirpc1_0.2.5-1.2ubuntu0.1_amd64.deb  Could not connect to sapt.filial439.bancocredicoop.coop:3142 (10.11.185.6). - connect (111: Connection refused)\nE: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/r/rpcbind/rpcbind_0.2.3-0.6ubuntu0.18.04.4_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\nE: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/n/nfs-utils/nfs-common_1.3.4-2.1ubuntu5.5_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\nE: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?\n",
+    "rc": 100,
+    "invocation": {
+        "module_args": {
+            "dpkg_options": "force-confdef,force-confold",
+            "autoremove": false,
+            "force": false,
+            "force_apt_get": false,
+            "policy_rc_d": null,
+            "package": [
+                "nfs-common"
+            ],
+            "autoclean": false,
+            "install_recommends": null,
+            "name": "nfs-common",
+            "purge": false,
+            "allow_unauthenticated": false,
+            "state": "present",
+            "upgrade": null,
+            "update_cache": null,
+            "default_release": null,
+            "only_upgrade": false,
+            "deb": null,
+            "cache_valid_time": 0
+        }
+    },
+    "cache_update_time": 1629906454,
+    "msg": "'/usr/bin/apt-get -y -o \"Dpkg::Options::=--force-confdef\" -o \"Dpkg::Options::=--force-confold\"      install 'nfs-common'' failed: E: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/libt/libtirpc/libtirpc1_0.2.5-1.2ubuntu0.1_amd64.deb  Could not connect to sapt.filial439.bancocredicoop.coop:3142 (10.11.185.6). - connect (111: Connection refused)\nE: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/r/rpcbind/rpcbind_0.2.3-0.6ubuntu0.18.04.4_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\nE: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/n/nfs-utils/nfs-common_1.3.4-2.1ubuntu5.5_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:\nE: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?\n",
+    "stdout_lines": [
+        "Reading package lists...",
+        "Building dependency tree...",
+        "Reading state information...",
+        "The following additional packages will be installed:",
+        "  libtirpc1 rpcbind",
+        "Suggested packages:",
+        "  open-iscsi watchdog",
+        "The following NEW packages will be installed:",
+        "  libtirpc1 nfs-common rpcbind",
+        "0 upgraded, 3 newly installed, 0 to remove and 386 not upgraded.",
+        "Need to get 323 kB of archives.",
+        "After this operation, 1132 kB of additional disk space will be used.",
+        "Ign:1 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 libtirpc1 amd64 0.2.5-1.2ubuntu0.1",
+        "Ign:2 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 rpcbind amd64 0.2.3-0.6ubuntu0.18.04.4",
+        "Err:3 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 nfs-common amd64 1:1.3.4-2.1ubuntu5.5",
+        "  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:",
+        "Err:1 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 libtirpc1 amd64 0.2.5-1.2ubuntu0.1",
+        "  Could not connect to sapt.filial439.bancocredicoop.coop:3142 (10.11.185.6). - connect (111: Connection refused)",
+        "Err:2 http://sapt.filial439.bancocredicoop.coop:3142/ubuntu bionic-updates/main amd64 rpcbind amd64 0.2.3-0.6ubuntu0.18.04.4",
+        "  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:"
+    ],
+    "stderr_lines": [
+        "E: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/libt/libtirpc/libtirpc1_0.2.5-1.2ubuntu0.1_amd64.deb  Could not connect to sapt.filial439.bancocredicoop.coop:3142 (10.11.185.6). - connect (111: Connection refused)",
+        "E: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/r/rpcbind/rpcbind_0.2.3-0.6ubuntu0.18.04.4_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:",
+        "E: Failed to fetch http://sapt.filial439.bancocredicoop.coop:3142/ubuntu/pool/main/n/nfs-utils/nfs-common_1.3.4-2.1ubuntu5.5_amd64.deb  Unable to connect to sapt.filial439.bancocredicoop.coop:3142:",
+        "E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?"
+    ],
+    "_ansible_no_log": false,
+    "changed": false
+}
