@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# Devuelve 0 si el balanceo esta activo o distinto de 0 en caso contrario
-#
-
-iptables -t nat -S BALANCEO | grep -- -A > /dev/null 2>&1

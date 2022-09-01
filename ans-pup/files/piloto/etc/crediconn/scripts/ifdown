@@ -1,4 +1,0 @@
-#!/bin/bash
-
-/usr/local/bin/credilog.py "NIC - Bajando interfaz $1"
-ifdown $1
